@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Users table - stores all user accounts
+model User {
+  id                String  @id @default(uuid())
+  email             String  @unique
+  passwordHash      String? @map("password_hash")
+  name              String
+  profilePictureUrl String? @map("profile_picture_url")
+
+  // OAuth fields
+  oauthProvider String? @map("oauth_provider") // 'google', 'github', 'linkedin'
+  oauthId       String? @map("oauth_id")
+
+  // Email verification
+  emailVerified          Boolean @default(false) @map("email_verified")
+  emailVerificationToken String? @unique @map("email_verification_token")
+
+  // Timestamps
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  lastLoginAt DateTime? @map("last_login_at")
+
+  // Relations (we'll add these later)
+  // portfolios              Portfolio[]
+  // sessions                Session[]
+  @@unique([oauthProvider, oauthId])
+  @@map("users")
+}
+
+// Sessions table - for JWT refresh tokens
+model Session {
+  id     String @id @default(uuid())
+  userId String @map("user_id")
+  // user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  refreshToken String  @unique @map("refresh_token")
+  userAgent    String? @map("user_agent")
+  ipAddress    String? @map("ip_address")
+
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("sessions")
+}
