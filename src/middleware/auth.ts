@@ -2,26 +2,20 @@ import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../utils/jwt';
 
 /**
- * Authentication Middleware
- * Verifies JWT token on protected routes
- * Attaches user info to request object
+ * Extend Passport User type instead of redefining Request.user
  */
-
-// Extend Express Request type to include user
 declare global {
     namespace Express {
-        interface Request {
-            user?: {
-                userId: string;
-                email: string;
-            };
+        interface User {
+            id: string;
+            email: string;
         }
     }
 }
-
 /**
- * Protect routes that require authentication
- * Usage: router.get('/protected', authenticate, handler)
+ * Authentication Middleware
+ * Verifies JWT token on protected routes
+ * Attaches user info to request object
  */
 export async function authenticate(
     req: Request,
@@ -29,8 +23,6 @@ export async function authenticate(
     next: NextFunction
 ) {
     try {
-        // Get token from Authorization header
-        // Format: "Bearer <token>"
         const authHeader = req.headers.authorization;
 
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -40,22 +32,21 @@ export async function authenticate(
             });
         }
 
-        // Extract token (remove "Bearer " prefix)
+        // Extract token
         const token = authHeader.substring(7);
 
         // Verify token
         const decoded = verifyAccessToken(token);
 
-        // Attach user info to request
+        // Attach user info
         req.user = {
-            userId: decoded.userId,
+            id: decoded.userId,
             email: decoded.email,
         };
 
-        // Continue to next middleware/handler
         next();
     } catch (error: any) {
-        res.status(401).json({
+        return res.status(401).json({
             success: false,
             message: error.message || 'Invalid or expired token',
         });
@@ -64,8 +55,6 @@ export async function authenticate(
 
 /**
  * Optional authentication
- * Attaches user if token is valid, but doesn't fail if missing
- * Usage: For routes that work both logged in and logged out
  */
 export async function optionalAuth(
     req: Request,
@@ -80,14 +69,13 @@ export async function optionalAuth(
             const decoded = verifyAccessToken(token);
 
             req.user = {
-                userId: decoded.userId,
+                id: decoded.userId,
                 email: decoded.email,
             };
         }
 
         next();
-    } catch (error) {
-        // Token invalid, but that's okay for optional auth
+    } catch {
         next();
     }
 }
