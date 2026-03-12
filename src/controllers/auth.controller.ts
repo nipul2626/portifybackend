@@ -86,10 +86,10 @@ export async function login(req: Request, res: Response) {
 
         // Set refresh token as httpOnly cookie (secure)
         res.cookie('refreshToken', result.refreshToken, {
-            httpOnly: true, // JavaScript can't access (prevents XSS)
-            secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-            sameSite: 'strict', // CSRF protection
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            httpOnly: true,
+            secure: true,          // required for HTTPS
+            sameSite: 'none',      // required for cross-domain cookies
+            maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
         // Return access token and user info

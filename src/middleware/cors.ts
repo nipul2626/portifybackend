@@ -1,18 +1,19 @@
-import cors from 'cors';
+import cors from "cors";
 
-/**
- * CORS Configuration
- * Allows frontend to make requests to backend
- */
+const allowedOrigins = [
+    "http://localhost:3000",
+    "https://portiqai.vercel.app"
+];
 
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
-
-export const corsOptions = {
-    origin: FRONTEND_URL, // Allow requests from your frontend
-    credentials: true, // Allow cookies to be sent
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    exposedHeaders: ['set-cookie'],
+export const corsOptions: cors.CorsOptions = {
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("CORS not allowed"));
+        }
+    },
+    credentials: true
 };
 
 export const corsMiddleware = cors(corsOptions);

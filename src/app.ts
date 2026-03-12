@@ -26,6 +26,7 @@ app.use(helmet());
 
 // CORS (allow frontend to make requests)
 app.use(corsMiddleware);
+app.use(express.json());
 
 // Parse JSON bodies
 app.use(express.json());
