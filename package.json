@@ -38,8 +38,8 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@prisma/client": "^7.4.2",
     "@prisma/adapter-pg": "^7.4.2",
+    "@prisma/client": "^7.4.2",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.9.0",
     "connect-redis": "^9.0.0",
